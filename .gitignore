@@ -5,3 +5,6 @@ blob-report/
 .env
 dist/
 .vscode/
+
+allure-results
+results
