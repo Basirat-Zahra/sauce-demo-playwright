@@ -4,7 +4,7 @@ import { InventoryPage } from '../pages/InventoryPage';
 import { CartPage } from '../pages/CartPage';
 import { products } from '../data/checkout';
 
-test.describe('@cart Cart', () => {
+test.describe('Cart Tests', () => {
   let loginPage: LoginPage;
   let inventoryPage: InventoryPage;
   let cartPage: CartPage;
@@ -19,7 +19,7 @@ test.describe('@cart Cart', () => {
     await inventoryPage.isLoaded();
   });
 
-  test('@smoke @cart item added on inventory page appears correctly in cart', async () => {
+  test('Item added on inventory page appears correctly in cart @smoke @cart', async () => {
     const item = products.backpack;
 
     await inventoryPage.addItemToCart(item.name);
@@ -32,7 +32,7 @@ test.describe('@cart Cart', () => {
     await expect(cartPage.itemQuantity(item.name)).toHaveText('1');
   });
 
-  test('@regression @cart multiple items all appear in cart with correct count', async () => {
+  test('Multiple items all appear in cart with correct count @regression @cart', async () => {
     await inventoryPage.addItemToCart(products.backpack.name);
     await inventoryPage.addItemToCart(products.bikeLight.name);
 
@@ -46,7 +46,7 @@ test.describe('@cart Cart', () => {
     expect(names).toContain(products.bikeLight.name);
   });
 
-  test('@regression @cart removing item from cart empties it and clears badge', async () => {
+  test('Removing item from cart empties it and clears badge @regression @cart', async () => {
     const item = products.backpack.name;
 
     await inventoryPage.addItemToCart(item);
@@ -59,7 +59,7 @@ test.describe('@cart Cart', () => {
     await expect(cartPage.cartBadge).not.toBeVisible();
   });
 
-  test('@smoke @navigation continue shopping returns to inventory page', async ({ page }) => {
+  test('Continue shopping returns to inventory page @smoke @navigation', async ({ page }) => {
     await inventoryPage.addItemToCart(products.backpack.name);
 
     await inventoryPage.openCart();
@@ -71,7 +71,7 @@ test.describe('@cart Cart', () => {
     await inventoryPage.isLoaded();
   });
 
-  test('@smoke @checkout checkout button navigates to checkout step one', async ({ page }) => {
+  test('Checkout button navigates to checkout step one @smoke @checkout', async ({ page }) => {
     await inventoryPage.addItemToCart(products.backpack.name);
 
     await inventoryPage.openCart();
@@ -82,14 +82,14 @@ test.describe('@cart Cart', () => {
     await expect(page).toHaveURL(/checkout-step-one.html/);
   });
 
-  test('@regression @cart cart page shows empty state when no items added', async () => {
+  test('Cart page shows empty state when no items added @regression @cart', async () => {
     await inventoryPage.openCart();
     await cartPage.isLoaded();
 
     expect(await cartPage.isCartEmpty()).toBe(true);
   });
 
-  test('@regression @checkout can still proceed to checkout with an empty cart', async ({ page }) => {
+  test('Can still proceed to checkout with an empty cart @regression @checkout', async ({ page }) => {
     await inventoryPage.openCart();
     await cartPage.isLoaded();
 

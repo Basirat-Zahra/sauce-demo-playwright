@@ -5,7 +5,7 @@ import { CartPage } from '../pages/CartPage';
 import { CheckoutPage } from '../pages/CheckoutPage';
 import { products, validCustomer, checkoutErrors, TAX_RATE } from '../data/checkout';
 
-test.describe('@checkout Checkout', () => {
+test.describe('Checkout Tests', () => {
   let loginPage: LoginPage;
   let inventoryPage: InventoryPage;
   let cartPage: CartPage;
@@ -28,29 +28,29 @@ test.describe('@checkout Checkout', () => {
     await cartPage.proceedToCheckout();
   });
 
-  test.describe('@checkout-info Step 1: Your Information', () => {
-    test('@regression @negative shows error when first name is missing', async () => {
+  test.describe('Step 1: Your Information', () => {
+    test('Shows error when first name is missing @regression @negative', async () => {
       await checkoutPage.fillInformation('', validCustomer.lastName, validCustomer.postalCode);
       await checkoutPage.continueToOverview();
 
       await expect(checkoutPage.errorMessage).toHaveText(checkoutErrors.firstNameRequired);
     });
 
-    test('@regression @negative shows error when last name is missing', async () => {
+    test('Shows error when last name is missing @regression @negative', async () => {
       await checkoutPage.fillInformation(validCustomer.firstName, '', validCustomer.postalCode);
       await checkoutPage.continueToOverview();
 
       await expect(checkoutPage.errorMessage).toHaveText(checkoutErrors.lastNameRequired);
     });
 
-    test('@regression @negative shows error when postal code is missing', async () => {
+    test('Shows error when postal code is missing @regression @negative', async () => {
       await checkoutPage.fillInformation(validCustomer.firstName, validCustomer.lastName, '');
       await checkoutPage.continueToOverview();
 
       await expect(checkoutPage.errorMessage).toHaveText(checkoutErrors.postalCodeRequired);
     });
 
-    test('@smoke @checkout proceeds to overview with valid information', async ({ page }) => {
+    test('Proceeds to overview with valid information @smoke @checkout', async ({ page }) => {
       await checkoutPage.fillInformation(
         validCustomer.firstName,
         validCustomer.lastName,
@@ -62,13 +62,13 @@ test.describe('@checkout Checkout', () => {
       await expect(page).toHaveURL(/checkout-step-two.html/);
     });
 
-    test('@regression @navigation cancel button returns to cart', async ({ page }) => {
+    test('Cancel button returns to cart @regression @navigation', async ({ page }) => {
       await checkoutPage.cancelCheckout();
       await expect(page).toHaveURL(/cart.html/);
     });
   });
 
-  test.describe('@checkout-overview Step 2: Overview', () => {
+  test.describe('Step 2: Overview', () => {
     test.beforeEach(async () => {
       await checkoutPage.fillInformation(
         validCustomer.firstName,
@@ -80,14 +80,14 @@ test.describe('@checkout Checkout', () => {
       await checkoutPage.isOnOverviewStep();
     });
 
-    test('@smoke @checkout displays correct items carried over from cart', async () => {
+    test('Displays correct items carried over from cart @smoke @checkout', async () => {
       const names = await checkoutPage.getOverviewItemNames();
 
       expect(names).toContain(products.backpack.name);
       expect(names).toContain(products.bikeLight.name);
     });
 
-    test('@regression @checkout calculates subtotal, tax, and total correctly', async () => {
+    test('Calculates subtotal, tax, and total correctly @regression @checkout', async () => {
       const expectedSubtotal = products.backpack.price + products.bikeLight.price;
       const expectedTax = Math.round(expectedSubtotal * TAX_RATE * 100) / 100;
       const expectedTotal = Math.round((expectedSubtotal + expectedTax) * 100) / 100;
@@ -101,19 +101,19 @@ test.describe('@checkout Checkout', () => {
       expect(total).toBeCloseTo(expectedTotal, 2);
     });
 
-    test('@regression @navigation cancel button returns to inventory page', async ({ page }) => {
+    test('Cancel button returns to inventory page @regression @navigation', async ({ page }) => {
       await checkoutPage.overviewCancelButton.click();
       await expect(page).toHaveURL(/inventory.html/);
     });
 
-    test('@smoke @checkout finish button completes the order', async () => {
+    test('Finish button completes the order @smoke @checkout', async () => {
       await checkoutPage.finishOrder();
       await checkoutPage.isOrderComplete();
     });
   });
 
-  test.describe('@order-confirmation Step 3: Order Confirmation', () => {
-    test('@smoke @checkout shows thank you message and allows returning to products', async ({ page }) => {
+  test.describe('Step 3: Order Confirmation', () => {
+    test('Shows thank you message and allows returning to products @smoke @checkout', async ({ page }) => {
       await checkoutPage.fillInformation(
         validCustomer.firstName,
         validCustomer.lastName,
@@ -130,7 +130,7 @@ test.describe('@checkout Checkout', () => {
       await expect(page).toHaveURL(/inventory.html/);
     });
 
-    test('@regression @checkout cart badge is cleared after completing an order', async () => {
+    test('Cart badge is cleared after completing an order @regression @checkout', async () => {
       await checkoutPage.fillInformation(
         validCustomer.firstName,
         validCustomer.lastName,
@@ -145,35 +145,33 @@ test.describe('@checkout Checkout', () => {
     });
   });
 
-  //Intentionally Failed testss
-  test.describe('Intentionally Failing Tests @failed', () => {
-  test('@regression should fail with incorrect checkout URL', async ({ page }) => {
-    await checkoutPage.fillInformation(
-      validCustomer.firstName,
-      validCustomer.lastName,
-      validCustomer.postalCode
-    );
+  test.describe('Intentionally Failing Tests', () => {
+    test('Should fail with incorrect checkout URL @regression @failed', async ({ page }) => {
+      await checkoutPage.fillInformation(
+        validCustomer.firstName,
+        validCustomer.lastName,
+        validCustomer.postalCode
+      );
 
-    await checkoutPage.continueToOverview();
+      await checkoutPage.continueToOverview();
 
-    // Intentional failure: the actual URL is checkout-step-two.html
-    await expect(page).toHaveURL(/checkout-step-three.html/);
+      // Intentional failure: the actual URL is checkout-step-two.html
+      await expect(page).toHaveURL(/checkout-step-three.html/);
+    });
+
+    test('Should fail with incorrect subtotal @regression @failed', async () => {
+      await checkoutPage.fillInformation(
+        validCustomer.firstName,
+        validCustomer.lastName,
+        validCustomer.postalCode
+      );
+
+      await checkoutPage.continueToOverview();
+
+      const subtotal = await checkoutPage.getSubtotal();
+
+      // Intentional failure
+      expect(subtotal).toBe(999.99);
+    });
   });
-
-  test('should fail with incorrect subtotal @regression', async () => {
-    await checkoutPage.fillInformation(
-      validCustomer.firstName,
-      validCustomer.lastName,
-      validCustomer.postalCode
-    );
-
-    await checkoutPage.continueToOverview();
-
-    const subtotal = await checkoutPage.getSubtotal();
-
-    // Intentional failure
-    expect(subtotal).toBe(999.99);
-  });
-});
-
 });
