@@ -144,4 +144,36 @@ test.describe('@checkout Checkout', () => {
       await expect(inventoryPage.cartBadge).not.toBeVisible();
     });
   });
+
+  //Intentionally Failed testss
+  test.describe('Intentionally Failing Tests @failed', () => {
+  test('@regression should fail with incorrect checkout URL', async ({ page }) => {
+    await checkoutPage.fillInformation(
+      validCustomer.firstName,
+      validCustomer.lastName,
+      validCustomer.postalCode
+    );
+
+    await checkoutPage.continueToOverview();
+
+    // Intentional failure: the actual URL is checkout-step-two.html
+    await expect(page).toHaveURL(/checkout-step-three.html/);
+  });
+
+  test('should fail with incorrect subtotal @regression', async () => {
+    await checkoutPage.fillInformation(
+      validCustomer.firstName,
+      validCustomer.lastName,
+      validCustomer.postalCode
+    );
+
+    await checkoutPage.continueToOverview();
+
+    const subtotal = await checkoutPage.getSubtotal();
+
+    // Intentional failure
+    expect(subtotal).toBe(999.99);
+  });
+});
+
 });
