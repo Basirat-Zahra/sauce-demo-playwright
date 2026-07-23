@@ -134,8 +134,7 @@ test.describe('Login Tests', () => {
     });
 });
 
-// Small local helper kept inline since ROUTES.HOME is '/', and baseURL already
-// anchors it — avoids importing ROUTES just for a regex in one assertion.
+
 function ROUTES_HOME_REGEX() {
     return /\/(index\.html)?$/;
 }
