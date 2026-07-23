@@ -5,7 +5,7 @@ import { CartPage } from '../pages/CartPage';
 import { CheckoutPage } from '../pages/CheckoutPage';
 import { products, validCustomer, checkoutErrors, TAX_RATE } from '../data/checkout';
 
-test.describe('Checkout', () => {
+test.describe('@checkout Checkout', () => {
   let loginPage: LoginPage;
   let inventoryPage: InventoryPage;
   let cartPage: CartPage;
@@ -28,63 +28,66 @@ test.describe('Checkout', () => {
     await cartPage.proceedToCheckout();
   });
 
-  test.describe('Step 1: Your Information', () => {
-    test('shows error when first name is missing', async () => {
+  test.describe('@checkout-info Step 1: Your Information', () => {
+    test('@regression @negative shows error when first name is missing', async () => {
       await checkoutPage.fillInformation('', validCustomer.lastName, validCustomer.postalCode);
       await checkoutPage.continueToOverview();
 
       await expect(checkoutPage.errorMessage).toHaveText(checkoutErrors.firstNameRequired);
     });
 
-    test('shows error when last name is missing', async () => {
+    test('@regression @negative shows error when last name is missing', async () => {
       await checkoutPage.fillInformation(validCustomer.firstName, '', validCustomer.postalCode);
       await checkoutPage.continueToOverview();
 
       await expect(checkoutPage.errorMessage).toHaveText(checkoutErrors.lastNameRequired);
     });
 
-    test('shows error when postal code is missing', async () => {
+    test('@regression @negative shows error when postal code is missing', async () => {
       await checkoutPage.fillInformation(validCustomer.firstName, validCustomer.lastName, '');
       await checkoutPage.continueToOverview();
 
       await expect(checkoutPage.errorMessage).toHaveText(checkoutErrors.postalCodeRequired);
     });
 
-    test('proceeds to overview with valid information', async ({ page }) => {
+    test('@smoke @checkout proceeds to overview with valid information', async ({ page }) => {
       await checkoutPage.fillInformation(
         validCustomer.firstName,
         validCustomer.lastName,
         validCustomer.postalCode
       );
+
       await checkoutPage.continueToOverview();
 
       await expect(page).toHaveURL(/checkout-step-two.html/);
     });
 
-    test('cancel button returns to cart', async ({ page }) => {
+    test('@regression @navigation cancel button returns to cart', async ({ page }) => {
       await checkoutPage.cancelCheckout();
       await expect(page).toHaveURL(/cart.html/);
     });
   });
 
-  test.describe('Step 2: Overview', () => {
+  test.describe('@checkout-overview Step 2: Overview', () => {
     test.beforeEach(async () => {
       await checkoutPage.fillInformation(
         validCustomer.firstName,
         validCustomer.lastName,
         validCustomer.postalCode
       );
+
       await checkoutPage.continueToOverview();
       await checkoutPage.isOnOverviewStep();
     });
 
-    test('displays correct items carried over from cart', async () => {
+    test('@smoke @checkout displays correct items carried over from cart', async () => {
       const names = await checkoutPage.getOverviewItemNames();
+
       expect(names).toContain(products.backpack.name);
       expect(names).toContain(products.bikeLight.name);
     });
 
-    test('calculates subtotal, tax, and total correctly', async () => {
+    test('@regression @checkout calculates subtotal, tax, and total correctly', async () => {
       const expectedSubtotal = products.backpack.price + products.bikeLight.price;
       const expectedTax = Math.round(expectedSubtotal * TAX_RATE * 100) / 100;
       const expectedTotal = Math.round((expectedSubtotal + expectedTax) * 100) / 100;
@@ -98,24 +101,25 @@ test.describe('Checkout', () => {
       expect(total).toBeCloseTo(expectedTotal, 2);
     });
 
-    test('cancel button returns to inventory page', async ({ page }) => {
+    test('@regression @navigation cancel button returns to inventory page', async ({ page }) => {
       await checkoutPage.overviewCancelButton.click();
       await expect(page).toHaveURL(/inventory.html/);
     });
 
-    test('finish button completes the order', async () => {
+    test('@smoke @checkout finish button completes the order', async () => {
       await checkoutPage.finishOrder();
       await checkoutPage.isOrderComplete();
     });
   });
 
-  test.describe('Step 3: Order Confirmation', () => {
-    test('shows thank you message and allows returning to products', async ({ page }) => {
+  test.describe('@order-confirmation Step 3: Order Confirmation', () => {
+    test('@smoke @checkout shows thank you message and allows returning to products', async ({ page }) => {
       await checkoutPage.fillInformation(
         validCustomer.firstName,
         validCustomer.lastName,
         validCustomer.postalCode
       );
+
       await checkoutPage.continueToOverview();
       await checkoutPage.finishOrder();
 
@@ -126,12 +130,13 @@ test.describe('Checkout', () => {
       await expect(page).toHaveURL(/inventory.html/);
     });
 
-    test('cart badge is cleared after completing an order', async () => {
+    test('@regression @checkout cart badge is cleared after completing an order', async () => {
       await checkoutPage.fillInformation(
         validCustomer.firstName,
         validCustomer.lastName,
         validCustomer.postalCode
       );
+
       await checkoutPage.continueToOverview();
       await checkoutPage.finishOrder();
       await checkoutPage.backToProducts();
